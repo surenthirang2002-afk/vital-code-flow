@@ -2,8 +2,9 @@ import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Save, CheckCircle, MessageSquare, ArrowUpDown } from "lucide-react";
+import { Search, Save, CheckCircle, MessageSquare, ArrowUpDown, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { motion } from "framer-motion";
 
 const mockCodes = [
   { diagnosis: "Type 2 Diabetes Mellitus", icd10: "E11.9", cpt: "99214", hcpcs: "A4253", confidence: 96, rank: 1 },
@@ -17,9 +18,7 @@ const mockCodes = [
 const getConfidenceColor = (c: number) =>
   c >= 90 ? "text-success" : c >= 70 ? "text-warning" : "text-destructive";
 const getConfidenceBg = (c: number) =>
-  c >= 90 ? "bg-success" : c >= 70 ? "bg-warning" : "bg-destructive";
-const getConfidenceLabel = (c: number) =>
-  c >= 90 ? "badge-success" : c >= 70 ? "badge-warning" : "badge-destructive";
+  c >= 90 ? "bg-success/20" : c >= 70 ? "bg-warning/20" : "bg-destructive/20";
 
 export default function CodingReview() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,107 +32,140 @@ export default function CodingReview() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">AI Coding Review</h2>
-            <p className="text-muted-foreground mt-1">charge_sheet_089.pdf — Review and finalize AI-suggested codes</p>
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-5 h-5 text-accent" />
+              <h2 className="text-2xl font-extrabold text-foreground tracking-tight">AI Coding Review</h2>
+            </div>
+            <p className="text-muted-foreground">charge_sheet_089.pdf — Review and finalize AI-suggested codes</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm"><Save className="w-4 h-4 mr-1" /> Save Draft</Button>
-            <Button size="sm" className="gradient-primary text-primary-foreground border-0">
-              <CheckCircle className="w-4 h-4 mr-1" /> Finalize Codes
-            </Button>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <Button variant="outline" size="sm" className="rounded-xl"><Save className="w-4 h-4 mr-1" /> Save Draft</Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <Button size="sm" className="gradient-primary text-primary-foreground border-0 rounded-xl shadow-md shadow-primary/15">
+                <CheckCircle className="w-4 h-4 mr-1" /> Finalize Codes
+              </Button>
+            </motion.div>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-5 gap-6">
           {/* Left Panel */}
-          <div className="lg:col-span-2 space-y-4">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="lg:col-span-2 space-y-4"
+          >
             <div className="card-elevated p-5">
-              <h3 className="font-semibold text-foreground mb-3">Extracted Data</h3>
+              <h3 className="font-bold text-foreground mb-3">Extracted Data</h3>
               <div className="space-y-4">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Diagnosis</p>
-                  <div className="bg-muted rounded-lg p-3 text-sm text-foreground leading-relaxed">
-                    Patient presents with Type 2 Diabetes Mellitus with peripheral neuropathy, Essential Hypertension, CKD Stage 3, Hyperlipidemia, and early diabetic retinopathy.
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Symptoms</p>
-                  <div className="bg-muted rounded-lg p-3 text-sm text-foreground">
-                    Tingling in extremities, blurred vision, fatigue, elevated blood pressure, edema in lower legs.
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Procedures</p>
-                  <div className="bg-muted rounded-lg p-3 text-sm text-foreground">
-                    Comprehensive metabolic panel, HbA1c, lipid panel, retinal screening, nerve conduction study.
-                  </div>
-                </div>
+                {[
+                  { label: "Diagnosis", text: "Patient presents with Type 2 Diabetes Mellitus with peripheral neuropathy, Essential Hypertension, CKD Stage 3, Hyperlipidemia, and early diabetic retinopathy." },
+                  { label: "Symptoms", text: "Tingling in extremities, blurred vision, fatigue, elevated blood pressure, edema in lower legs." },
+                  { label: "Procedures", text: "Comprehensive metabolic panel, HbA1c, lipid panel, retinal screening, nerve conduction study." },
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + i * 0.1 }}
+                  >
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5 font-semibold">{item.label}</p>
+                    <div className="bg-muted/60 rounded-xl p-3.5 text-sm text-foreground leading-relaxed border border-border/30">
+                      {item.text}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
             <div className="card-elevated p-5">
-              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" /> Comments
+              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-muted-foreground" /> Comments
               </h3>
               <textarea
-                className="w-full bg-muted rounded-lg p-3 text-sm text-foreground border-0 resize-none h-24 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full bg-muted/60 rounded-xl p-3.5 text-sm text-foreground border border-border/30 resize-none h-24 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-shadow"
                 placeholder="Add review comments..."
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Panel */}
-          <div className="lg:col-span-3">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-3"
+          >
             <div className="card-elevated">
-              <div className="p-4 border-b border-border flex items-center gap-3">
+              <div className="p-4 border-b border-border/50 flex items-center gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Search codes..."
-                    className="pl-9"
+                    className="pl-9 rounded-xl"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <Button variant="outline" size="sm"><ArrowUpDown className="w-4 h-4 mr-1" /> Sort</Button>
+                <Button variant="outline" size="sm" className="rounded-xl"><ArrowUpDown className="w-4 h-4 mr-1" /> Sort</Button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-muted/50">
-                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">#</th>
-                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Diagnosis</th>
-                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">ICD-10</th>
-                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">CPT</th>
-                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">HCPCS</th>
-                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Confidence</th>
-                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Action</th>
+                    <tr className="border-b border-border bg-muted/30">
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium text-xs uppercase tracking-wider">#</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium text-xs uppercase tracking-wider">Diagnosis</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium text-xs uppercase tracking-wider">ICD-10</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium text-xs uppercase tracking-wider">CPT</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium text-xs uppercase tracking-wider">HCPCS</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium text-xs uppercase tracking-wider">Confidence</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium text-xs uppercase tracking-wider">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((code, i) => (
-                      <tr key={i} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
-                        <td className="py-3 px-4 text-muted-foreground">{code.rank}</td>
-                        <td className="py-3 px-4 text-foreground font-medium max-w-[180px] truncate">{code.diagnosis}</td>
-                        <td className="py-3 px-4"><code className="bg-primary/5 text-primary px-2 py-0.5 rounded text-xs font-mono">{code.icd10}</code></td>
-                        <td className="py-3 px-4"><code className="bg-accent/5 text-accent px-2 py-0.5 rounded text-xs font-mono">{code.cpt}</code></td>
-                        <td className="py-3 px-4 text-muted-foreground">{code.hcpcs}</td>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <Progress value={code.confidence} className={`h-1.5 w-16 ${getConfidenceBg(code.confidence)}`} />
-                            <span className={`text-xs font-medium ${getConfidenceColor(code.confidence)}`}>{code.confidence}%</span>
+                      <motion.tr
+                        key={i}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + i * 0.05 }}
+                        className="border-b border-border/30 last:border-0 hover:bg-muted/40 transition-colors"
+                      >
+                        <td className="py-3.5 px-4 text-muted-foreground font-medium">{code.rank}</td>
+                        <td className="py-3.5 px-4 text-foreground font-semibold max-w-[180px] truncate">{code.diagnosis}</td>
+                        <td className="py-3.5 px-4"><code className="bg-primary/8 text-primary px-2.5 py-1 rounded-lg text-xs font-mono font-semibold">{code.icd10}</code></td>
+                        <td className="py-3.5 px-4"><code className="bg-accent/8 text-accent px-2.5 py-1 rounded-lg text-xs font-mono font-semibold">{code.cpt}</code></td>
+                        <td className="py-3.5 px-4 text-muted-foreground">{code.hcpcs}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className={`h-2 w-16 rounded-full ${getConfidenceBg(code.confidence)} overflow-hidden`}>
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${code.confidence}%` }}
+                                transition={{ delay: 0.5 + i * 0.05, duration: 0.6 }}
+                                className={`h-full rounded-full ${code.confidence >= 90 ? "bg-success" : code.confidence >= 70 ? "bg-warning" : "bg-destructive"}`}
+                              />
+                            </div>
+                            <span className={`text-xs font-bold ${getConfidenceColor(code.confidence)}`}>{code.confidence}%</span>
                           </div>
-                          {code.confidence < 70 && <span className="badge-destructive text-[10px] mt-1 inline-block">Needs Review</span>}
+                          {code.confidence < 70 && (
+                            <span className="badge-destructive text-[10px] mt-1.5 inline-block">Needs Review</span>
+                          )}
                         </td>
-                        <td className="py-3 px-4">
-                          <Button variant="outline" size="sm" className="text-xs h-7">Override</Button>
+                        <td className="py-3.5 px-4">
+                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button variant="outline" size="sm" className="text-xs h-7 rounded-lg">Override</Button>
+                          </motion.div>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </AppLayout>
